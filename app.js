@@ -1,9 +1,16 @@
 const express = require('express')
 const morgan = require('morgan')
-const dbURI = 'mongodb://localhost:27017/'
+const mongoose = require('mongoose')
+const Blog = require('./models/blog')
 
 // express app
 const app = express()
+
+// connect to mongodb
+const dbURI = 'mongodb://127.0.0.1:27017/nodetuts'
+mongoose.connect(dbURI)
+    .then((result)=>console.log('connected to db'))
+    .catch((err)=>console.log(err))
 
 // register view engine
 app.set('view engine', 'ejs')
@@ -15,6 +22,22 @@ app.listen(3000)
 app.use(express.static('public'))
 app.use(morgan('dev'))
 
+// mongoose and mongo sandbox routes
+app.get('/add-blog',(req, res)=>{
+    const blog = new Blog(
+        {
+            title:'New Blog',
+            snippet: 'about my new blog',
+            body: 'more about my new blog'
+        })
+        blog.save()
+        .then((result)=>{
+            res.send(result)
+        })
+        .catch((err)=>{console.log(err)})
+})
+
+// routes
 app.get('/',(req,res)=>{
     // res.send('<p>HOME PAGE</p>')
     const blogs = [
